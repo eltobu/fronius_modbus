@@ -112,11 +112,11 @@ class ExtModbusClient:
 
     async def get_registers(self, unit_id, address, count, retries = 0):
         data = await self.read_holding_registers(unit_id=unit_id, address=address, count=count)
-        if data.isError():
-            if isinstance(data,ModbusIOException):
+        if data is None or data.isError():
+            if data is not None and isinstance(data, ModbusIOException):
                 if retries < 1:
                     _LOGGER.debug(f"IO Error: {data}. Retrying...")
-                    return await self.get_registers(address=address, count=count, retries = retries + 1)
+                    return await self.get_registers(unit_id=unit_id, address=address, count=count, retries = retries + 1)
                 else:
                     _LOGGER.error(f"error reading register: {address} count: {count} unit id: {unit_id} error: {data} ")
             else:
