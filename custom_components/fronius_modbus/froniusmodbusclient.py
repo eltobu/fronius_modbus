@@ -29,8 +29,6 @@ from .froniusmodbusclient_const import (
     MPPT_HEADER_LENGTH,
     MPPT_MODULE_LENGTH,
     # Storage offsets
-    STORAGE_CHARGE_RATE_SETPOINT_OFFSET,
-    STORAGE_DISCHARGE_RATE_SETPOINT_OFFSET,
     STORAGE_CONTROL_MODE_OFFSET,
     MINIMUM_RESERVE_OFFSET,
     DISCHARGE_RATE_OFFSET,
@@ -778,25 +776,13 @@ class FroniusModbusClient(ExtModbusClient):
     async def set_storage_charge_rate_setpoint(self, charge_rate: float):
         if not self.storage_configured:
             return False
-        if charge_rate < 0:
-            charge_rate = 0
-        elif charge_rate > self.max_charge_rate_w:
-            charge_rate = self.max_charge_rate_w
-            
-        storage_model = self.sunspec_models[SUNSPEC_STORAGE_MODEL]
-        await self.write_registers(unit_id=self._inverter_unit_id, address=storage_model['address'] + 2 + STORAGE_CHARGE_RATE_SETPOINT_OFFSET, payload=[int(charge_rate)])
+        await self.set_charge_rate_w(charge_rate)
         self.data['storage_charge_rate_setpoint'] = charge_rate
 
     async def set_storage_discharge_rate_setpoint(self, discharge_rate: float):
         if not self.storage_configured:
             return False
-        if discharge_rate < 0:
-            discharge_rate = 0
-        elif discharge_rate > self.max_discharge_rate_w:
-            discharge_rate = self.max_discharge_rate_w
-            
-        storage_model = self.sunspec_models[SUNSPEC_STORAGE_MODEL]
-        await self.write_registers(unit_id=self._inverter_unit_id, address=storage_model['address'] + 2 + STORAGE_DISCHARGE_RATE_SETPOINT_OFFSET, payload=[int(discharge_rate)])
+        await self.set_discharge_rate_w(discharge_rate)
         self.data['storage_discharge_rate_setpoint'] = discharge_rate
 
     async def set_discharge_rate_w(self, discharge_rate_w):
