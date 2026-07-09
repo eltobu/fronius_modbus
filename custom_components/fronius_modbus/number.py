@@ -30,8 +30,9 @@ async def async_setup_entry(hass, config_entry, async_add_entities) -> None:
             max_key = number_info[2].get('max_key')
             if not max_key is None:
                 max = hub.data.get(max_key)
+                if max is None:
+                    _LOGGER.warning(f"Could not get dynamic max value for {number_info[0]} using key '{max_key}'. Falling back to hardcoded max value {number_info[2]['max']}.")
             if max is None:
-                _LOGGER.warning(f"Could not get dynamic max value for {number_info[0]} using key '{max_key}'. Falling back to hardcoded max value {number_info[2]['max']}.")
                 max = number_info[2]['max']
 
             number = FroniusModbusNumber(

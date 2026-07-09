@@ -254,6 +254,10 @@ class ExtModbusClient:
 
     def calculate_value(self, value, sf, digits=2, lower_bound = None, upper_bound = None):
         if self.is_numeric(value) and self.is_numeric(sf):
+            # Ignore SunSpec 'Not Implemented' / NaN values
+            if value in (65535, 4294967295, -32768, -2147483648):
+                return None
+                
             rvalue = round(value * 10**sf, digits)
             if not lower_bound is None and rvalue < lower_bound:
                 _LOGGER.error(f'calculated value: {rvalue} below lower bound {lower_bound} value: {value} sf: {sf} digits {digits}', stack_info=True)
