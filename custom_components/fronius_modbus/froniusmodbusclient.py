@@ -623,22 +623,22 @@ class FroniusModbusClient(ExtModbusClient):
         self.data['soc'] = self.calculate_value(charge_state, -2, 2, 0, 100)
         self.data['max_charge'] = self.calculate_value(max_charge, 0, 0)
         self.data['storage_minimum_reserve'] = self.data['minimum_reserve']
-        self.data['storage_charge_rate_setpoint'] = self.calculate_value(WChaGra, 0, 0)
-        self.data['storage_discharge_rate_setpoint'] = self.calculate_value(WDisChaGra, 0, 0)
+
+        w_cha_max = self.data.get('max_charge', 10000)
 
         control_mode = self.data.get('control_mode')
         if control_mode is None or control_mode != STORAGE_CONTROL_MODE.get(storage_control_mode):
             if discharge_power >= 0:
-                self.data['storage_discharge_limit'] = discharge_power / 100.0 
+                self.data['storage_discharge_limit'] = (discharge_power / 10000.0) * w_cha_max 
                 self.data['storage_grid_charge_power'] = 0
             else: 
-                self.data['storage_grid_charge_power'] = (discharge_power * -1) / 100.0 
+                self.data['storage_grid_charge_power'] = ((discharge_power * -1) / 10000.0) * w_cha_max 
                 self.data['storage_discharge_limit'] = 0
             if charge_power >= 0:
-                self.data['storage_charge_limit'] = charge_power / 100 
+                self.data['storage_charge_limit'] = (charge_power / 10000.0) * w_cha_max 
                 self.data['storage_grid_discharge_power'] = 0
             else: 
-                self.data['storage_grid_discharge_power'] = (charge_power * -1) / 100.0 
+                self.data['storage_grid_discharge_power'] = ((charge_power * -1) / 10000.0) * w_cha_max 
                 self.data['storage_charge_limit'] = 0
 
             self.data['control_mode'] = STORAGE_CONTROL_MODE.get(storage_control_mode)
@@ -761,17 +761,7 @@ class FroniusModbusClient(ExtModbusClient):
         minimum_reserve = round(minimum_reserve * 100)
         await self.write_registers(unit_id=self._inverter_unit_id, address=storage_model['address'] + 2 + MINIMUM_RESERVE_OFFSET, payload=[minimum_reserve])
 
-    async def set_storage_charge_rate_setpoint(self, charge_rate: float):
-        if not self.storage_configured:
-            return False
-        await self.set_charge_rate_w(charge_rate)
-        self.data['storage_charge_rate_setpoint'] = charge_rate
 
-    async def set_storage_discharge_rate_setpoint(self, discharge_rate: float):
-        if not self.storage_configured:
-            return False
-        await self.set_discharge_rate_w(discharge_rate)
-        self.data['storage_discharge_rate_setpoint'] = discharge_rate
 
     async def set_discharge_rate_w(self, discharge_rate_w):
         if discharge_rate_w > self.max_discharge_rate_w:
@@ -787,7 +777,7 @@ class FroniusModbusClient(ExtModbusClient):
             return False
         storage_model = self.sunspec_models[SUNSPEC_STORAGE_MODEL]
         if discharge_rate < 0:
-            discharge_rate = int(65536 + (discharge_rate * 100))
+            discharge_rate = int(round(65536 + (discharge_rate * 100)))
         else:
             discharge_rate = int(round(discharge_rate * 100))
         await self.write_registers(unit_id=self._inverter_unit_id, address=storage_model['address'] + 2 + DISCHARGE_RATE_OFFSET, payload=[discharge_rate])
@@ -840,15 +830,15 @@ class FroniusModbusClient(ExtModbusClient):
             return False
         storage_model = self.sunspec_models[SUNSPEC_STORAGE_MODEL]
         if charge_rate < 0:
-            charge_rate =  int(65536 + (charge_rate * 100))
+            charge_rate = int(round(65536 + (charge_rate * 100)))
         else:
             charge_rate = int(round(charge_rate * 100))
         await self.write_registers(unit_id=self._inverter_unit_id, address=storage_model['address'] + 2 + CHARGE_RATE_OFFSET, payload=[charge_rate])
 
     async def change_settings(self, mode, charge_limit, discharge_limit, grid_charge_power=0, grid_discharge_power=0, minimum_reserve=None):
         await self.set_storage_control_mode(0)
-        await self.set_charge_rate(charge_limit)
-        await self.set_discharge_rate(discharge_limit)
+        await self.set_charge_rate_w(charge_limit)
+        await self.set_discharge_rate_w(discharge_limit)
         await self.set_storage_control_mode(mode)
         if self.storage_extended_control_mode == 4:
             self.data['storage_discharge_limit'] = 0
@@ -864,51 +854,51 @@ class FroniusModbusClient(ExtModbusClient):
             await self.set_storage_minimum_reserve(minimum_reserve)
         
     async def restore_defaults(self):
-        await self.change_settings(mode=0, charge_limit=100, discharge_limit=100, minimum_reserve=7)
+        await self.change_settings(mode=0, charge_limit=self.max_charge_rate_w, discharge_limit=self.max_discharge_rate_w, minimum_reserve=7)
         _LOGGER.info(f"restored defaults")
 
     async def set_auto_mode(self):
-        await self.change_settings(mode=0, charge_limit=100, discharge_limit=100)
+        await self.change_settings(mode=0, charge_limit=self.max_charge_rate_w, discharge_limit=self.max_discharge_rate_w)
         self.storage_extended_control_mode = 0
         _LOGGER.info(f"Auto mode")
 
     async def set_charge_mode(self):
-        await self.change_settings(mode=1, charge_limit=100, discharge_limit=100)
+        await self.change_settings(mode=1, charge_limit=self.max_charge_rate_w, discharge_limit=self.max_discharge_rate_w)
         self.storage_extended_control_mode = 1
         _LOGGER.info(f"Set charge mode")
   
     async def set_discharge_mode(self):
-        await self.change_settings(mode=2, charge_limit=100, discharge_limit=100)
+        await self.change_settings(mode=2, charge_limit=self.max_charge_rate_w, discharge_limit=self.max_discharge_rate_w)
         self.storage_extended_control_mode = 2
         _LOGGER.info(f"Set discharge mode")
 
     async def set_charge_discharge_mode(self):
-        await self.change_settings(mode=3, charge_limit=100, discharge_limit=100)
+        await self.change_settings(mode=3, charge_limit=self.max_charge_rate_w, discharge_limit=self.max_discharge_rate_w)
         self.storage_extended_control_mode = 3
         _LOGGER.info(f"Set charge/discharge mode.")
 
     async def set_grid_charge_mode(self):
         grid_charge_power = 0
         discharge_rate = grid_charge_power * -1
-        await self.change_settings(mode=2, charge_limit=100, discharge_limit=discharge_rate, grid_charge_power=grid_charge_power)
+        await self.change_settings(mode=2, charge_limit=self.max_charge_rate_w, discharge_limit=discharge_rate, grid_charge_power=grid_charge_power)
         self.storage_extended_control_mode = 4
         _LOGGER.info(f"Forced charging at {grid_charge_power}")
 
     async def set_grid_discharge_mode(self):
         grid_discharge_power = 0
         charge_rate = grid_discharge_power * -1
-        await self.change_settings(mode=1, charge_limit=charge_rate, discharge_limit=100, grid_discharge_power=grid_discharge_power)
+        await self.change_settings(mode=1, charge_limit=charge_rate, discharge_limit=self.max_discharge_rate_w, grid_discharge_power=grid_discharge_power)
         self.storage_extended_control_mode = 5
         _LOGGER.info(f"Forced discharging to grid {grid_discharge_power}")
 
     async def set_block_discharge_mode(self):
-        charge_rate = 100
+        charge_rate = self.max_charge_rate_w
         await self.change_settings(mode=3, charge_limit=charge_rate, discharge_limit=0)
         self.storage_extended_control_mode = 6
         _LOGGER.info(f"blocked discharging")
 
     async def set_block_charge_mode(self):
-        discharge_rate = 100
+        discharge_rate = self.max_discharge_rate_w
         await self.change_settings(mode=3, charge_limit=0, discharge_limit=discharge_rate)
         self.storage_extended_control_mode = 7
         _LOGGER.info(f"Block charging at {discharge_rate}")

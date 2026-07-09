@@ -281,11 +281,3 @@ class Hub:
     @toggle_busy
     async def set_storage_grid_discharge_power(self, value):
         await self._client.set_storage_grid_discharge_power(value)
-
-    @toggle_busy
-    async def set_storage_charge_rate_setpoint(self, value):
-        await self._client.set_storage_charge_rate_setpoint(value)
-
-    @toggle_busy
-    async def set_storage_discharge_rate_setpoint(self, value):
-        await self._client.set_storage_discharge_rate_setpoint(value)
