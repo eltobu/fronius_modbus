@@ -122,11 +122,10 @@ CONTROL_STATUS = {
 STORAGE_EXT_CONTROL_MODE = {
     0: 'Auto',
     1: 'PV Charge Limit',
-    2: 'Discharge Limit',
-    3: 'PV Charge and Discharge Limit',
+    2: 'Load Discharge Limit',
+    3: 'PV Charge and Load Discharge Limit',
     4: 'Charge from Grid',
     5: 'Discharge to Grid',
     6: 'Block Discharging',
     7: 'Block Charging',
-#    8: 'Calibrate',
 }

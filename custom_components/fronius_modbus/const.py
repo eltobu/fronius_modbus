@@ -27,13 +27,13 @@ STORAGE_SELECT_TYPES = [
 ]
 
 STORAGE_NUMBER_TYPES = [
-    ['Storage Grid Discharge Power', 'storage_grid_discharge_power', {'min': 0, 'max': 10100, 'step': 10, 'mode':'box', 'unit': 'W', 'max_key': 'MaxDisChaRte'}],
-    ['Storage Grid Charge Power', 'storage_grid_charge_power', {'min': 0, 'max': 10100, 'step': 10, 'mode':'box', 'unit': 'W', 'max_key': 'MaxChaRte'}],
-    ['Storage Discharge Limit', 'storage_discharge_limit',  {'min': 0, 'max': 10100, 'step': 10, 'mode':'box', 'unit': 'W', 'max_key': 'MaxDisChaRte'}],
-    ['Storage PV Charge Limit', 'storage_charge_limit', {'min': 0, 'max': 10100, 'step': 10, 'mode':'box', 'unit': 'W', 'max_key': 'MaxChaRte'}],
-    ['Storage Minimum Reserve', 'storage_minimum_reserve', {'min': 5, 'max': 100, 'step': 1, 'mode':'box', 'unit': '%'}],
-    ['Storage Charge Rate Setpoint', 'storage_charge_rate_setpoint', {'min': 0, 'max': 10100, 'step': 10, 'mode':'box', 'unit': 'W', 'max_key': 'MaxChaRte'}],
-    ['Storage Discharge Rate Setpoint', 'storage_discharge_rate_setpoint', {'min': 0, 'max': 10100, 'step': 10, 'mode':'box', 'unit': 'W', 'max_key': 'MaxDisChaRte'}],
+    ['Grid Discharge Power', 'storage_grid_discharge_power', {'min': 0, 'max': 10100, 'step': 10, 'mode':'box', 'unit': 'W', 'max_key': 'MaxDisChaRte'}],
+    ['Grid Charge Power', 'storage_grid_charge_power', {'min': 0, 'max': 10100, 'step': 10, 'mode':'box', 'unit': 'W', 'max_key': 'MaxChaRte'}],
+    ['Load Discharge Limit', 'storage_discharge_limit',  {'min': 0, 'max': 10100, 'step': 10, 'mode':'box', 'unit': 'W', 'max_key': 'MaxDisChaRte'}],
+    ['PV Charge Limit', 'storage_charge_limit', {'min': 0, 'max': 10100, 'step': 10, 'mode':'box', 'unit': 'W', 'max_key': 'MaxChaRte'}],
+    ['Minimum Reserve', 'storage_minimum_reserve', {'min': 5, 'max': 100, 'step': 1, 'mode':'box', 'unit': '%'}],
+    ['Charge Rate Setpoint', 'storage_charge_rate_setpoint', {'min': 0, 'max': 10100, 'step': 10, 'mode':'box', 'unit': 'W', 'max_key': 'MaxChaRte'}],
+    ['Discharge Rate Setpoint', 'storage_discharge_rate_setpoint', {'min': 0, 'max': 10100, 'step': 10, 'mode':'box', 'unit': 'W', 'max_key': 'MaxDisChaRte'}],
 #    ['Reserve Target', 'reserve_target', {'min': 0, 'max': 100, 'unit': '%'}],
 ]
 

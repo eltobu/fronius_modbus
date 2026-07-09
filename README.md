@@ -50,21 +50,21 @@ And turn on:
 ### Controls
 | Entity  | Description |
 | --- | --- |
-| Storage Discharge Limit | Maximum discharging power in watts of which the battery can be discharged by. |
-| Storage Grid Charge Power | The charging power in watts when the storage is being charged from the grid. Note that grid charging seems to be limited to an effective 50% by the hardware. |
-| Storage Grid Discharge Power | The discharging power in watts when the storage is being discharged to the grid. |
-| Storage Minimum Reserve | The minimum reserve for storage when discharging. Note that the storage will charge from the grid with 0.5kW if SOC falls below this level. Called 'Reserve Capacity' in Fronius Web UI. |
-| Storage PV Charge Limit | Maximum PV charging power in watts of which the battery can be charged by. |
-| Storage Charge Rate Setpoint | Direct hardware setpoint for the maximum charge rate of the battery. Advanced control that bypasses mode logic. |
-| Storage Discharge Rate Setpoint | Direct hardware setpoint for the maximum discharge rate of the battery. Advanced control that bypasses mode logic. |
+| Load Discharge Limit | Maximum load discharging power in watts of which the battery can be discharged by. |
+| Grid Charge Power | The charging power in watts when the storage is being charged from the grid. Note that grid charging seems to be limited to an effective 50% by the hardware. |
+| Grid Discharge Power | The discharging power in watts when the storage is being discharged to the grid. |
+| Minimum Reserve | The minimum reserve for storage when discharging. Note that the storage will charge from the grid with 0.5kW if SOC falls below this level. Called 'Reserve Capacity' in Fronius Web UI. |
+| PV Charge Limit | Maximum PV charging power in watts of which the battery can be charged by. |
+| Charge Rate Setpoint | Direct hardware setpoint for the maximum charge rate of the battery. Advanced control that bypasses mode logic. |
+| Discharge Rate Setpoint | Direct hardware setpoint for the maximum discharge rate of the battery. Advanced control that bypasses mode logic. |
 
 ### Storage Control Modes
 | Mode  | Description |
 | --- | --- |
 | Auto  | The storage will allow charging and discharging up to the minimum reserve. |
 | PV Charge Limit | The storage can be charged with PV power at a limited rate. Limit will be set to maximum power after change.  |
-| Discharge Limit | The storage can be charged with PV power and discharged at a limited rate. Limit will be set to maximum power after change. |
-| PV Charge and Discharge Limit | Allows setting both PV charge and discharge limits. Limits will be set to maximum power after change. |
+| Load Discharge Limit | The storage can be discharged into the load at a limited rate. Limit will be set to maximum power after change. |
+| PV Charge and Load Discharge Limit | Allows setting both PV charge and load discharge limits. Limits will be set to maximum power after change. |
 | Charge from Grid | The storage will be charged from the grid using the charge rate from 'Storage Grid Charge Power'. Power will be set 0 after change. |
 | Discharge to Grid | The storage will discharge to the grid using the discharge rate from 'Storage Grid Discharge Power'. Power will be set 0 after change. |
 | Block discharging | The storage can only be charged with PV power. Charge limit will be set to maximum power. |
@@ -73,12 +73,12 @@ And turn on:
 Note to change the mode first then set controls active in that mode.
 
 ### Controls used by Modes
-| Mode | Storage PV Charge Limit | Storage Discharge Limit | Storage Grid Charge Power | Storage Grid Discharge Power | Storage Minimum Reserve | 
+| Mode | PV Charge Limit | Load Discharge Limit | Grid Charge Power | Grid Discharge Power | Minimum Reserve | 
 | --- | --- | --- | --- | --- | --- |
 | Auto | Ignored (100%) | Ignored (100%) | Ignored (0%) | Ignored (0%) | Used | 
 | PV Charge Limit | Used | Ignored (100%) | Ignored (0%) | Ignored (0%) | Used |
-| Discharge Limit  | Ignored (100%) | Used | Ignored (0%) | Ignored (0%) | Used |
-| PV Charge and Discharge Limit  | Used | Used | Ignored (0%) | Ignored (0%) | Used |
+| Load Discharge Limit  | Ignored (100%) | Used | Ignored (0%) | Ignored (0%) | Used |
+| PV Charge and Load Discharge Limit  | Used | Used | Ignored (0%) | Ignored (0%) | Used |
 | Charge from Grid | Ignored | Ignored | Used | Ignored (0%) | Used |
 | Discharge to Grid | Ignored | Ignored | Ignored (0%) | Used | Used |
 | Block discharging | Used | Ignored (0%) | Ignored (0%) | Ignored (0%) | Used |
@@ -88,9 +88,9 @@ Note to change the mode first then set controls active in that mode.
 | Web UI name | Integration Control | Integration Mode |
 | --- | --- | --- |
 | Max. charging power | PV Charge Limit | PV Charge Limit |
-| Min. charging power | Grid Charging Power | Charge from Grid |
-| Max. discharging power | Discharge Limit | Discharge Limit |
-| Min. discharging power | Grid Discharge Power | Grid Discharge Power | 
+| Min. charging power | Grid Charge Power | Charge from Grid |
+| Max. discharging power | Load Discharge Limit | Load Discharge Limit |
+| Min. discharging power | Grid Discharge Power | Discharge to Grid | 
 
 ### Battery Storage Sensors
 | Entity  | Description |
