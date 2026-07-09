@@ -260,8 +260,7 @@ class Hub:
             await self._client.set_block_discharge_mode()
         elif mode == 7:
             await self._client.set_block_charge_mode()
-        elif mode == 8:
-            await self._client.set_calibrate_mode()
+
 
     @toggle_busy
     async def set_storage_minimum_reserve(self, value):

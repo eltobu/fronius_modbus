@@ -650,32 +650,20 @@ class FroniusModbusClient(ExtModbusClient):
                 ext_control_mode = 0
             elif storage_control_mode in [1,3] and charge_power == 0:
                 ext_control_mode = 7
+            elif storage_control_mode in [1,3] and charge_power < 0:
+                ext_control_mode = 5
             elif storage_control_mode == 1:
                 ext_control_mode = 1
-            elif storage_control_mode in [2,3] and discharge_power < 0:
-                ext_control_mode = 4
-            elif storage_control_mode in [2,3] and charge_power < 0:
-                ext_control_mode = 5
             elif storage_control_mode in [2,3] and discharge_power == 0:
                 ext_control_mode = 6
+            elif storage_control_mode in [2,3] and discharge_power < 0:
+                ext_control_mode = 4
             elif storage_control_mode == 2:
                 ext_control_mode = 2
             elif storage_control_mode == 3:
                 ext_control_mode = 3
             self.data['ext_control_mode'] = STORAGE_EXT_CONTROL_MODE[ext_control_mode]
             self.storage_extended_control_mode = ext_control_mode
-
-        if ext_control_mode == 7:
-            soc = self.data.get('soc')
-            if storage_control_mode == 2 and soc == 100:
-                _LOGGER.error(f'Calibration hit 100%, start discharge')
-                await self.change_settings(1, 0, 100, 0)
-            elif storage_control_mode == 3 and soc <= 5: 
-                _LOGGER.error(f'Calibration hit 5%, return to auto mode')
-                await self.set_auto_mode()
-                await self.set_storage_minimum_reserve(30)
-                self.data['ext_control_mode'] = STORAGE_EXT_CONTROL_MODE[0]
-                self.storage_extended_control_mode = 0
 
         return True
 
@@ -858,9 +846,10 @@ class FroniusModbusClient(ExtModbusClient):
         await self.write_registers(unit_id=self._inverter_unit_id, address=storage_model['address'] + 2 + CHARGE_RATE_OFFSET, payload=[charge_rate])
 
     async def change_settings(self, mode, charge_limit, discharge_limit, grid_charge_power=0, grid_discharge_power=0, minimum_reserve=None):
-        await self.set_storage_control_mode(mode)
+        await self.set_storage_control_mode(0)
         await self.set_charge_rate(charge_limit)
         await self.set_discharge_rate(discharge_limit)
+        await self.set_storage_control_mode(mode)
         if self.storage_extended_control_mode == 4:
             self.data['storage_discharge_limit'] = 0
         else:
@@ -924,7 +913,3 @@ class FroniusModbusClient(ExtModbusClient):
         self.storage_extended_control_mode = 7
         _LOGGER.info(f"Block charging at {discharge_rate}")
 
-    async def set_calibrate_mode(self):
-        await self.change_settings(mode=2, charge_limit=100, discharge_limit=-100, grid_charge_power=100)
-        self.storage_extended_control_mode = 8
-        _LOGGER.info(f"Auto mode")
